@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="20086" systemVersion="21G72" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="City" representedClassName=".CityEntity" syncable="YES">
+        <attribute name="name" attributeType="String"/>
+        <attribute name="region" attributeType="String"/>
+        <relationship name="streets" toMany="YES" deletionRule="Cascade" destinationEntity="Street" inverseName="city" inverseEntity="Street"/>
+    </entity>
+    <entity name="Home" representedClassName=".HomeEntity" syncable="YES">
+        <attribute name="number" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="ownerName" attributeType="String"/>
+        <attribute name="roomsCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="street" maxCount="1" deletionRule="Nullify" destinationEntity="Street" inverseName="homes" inverseEntity="Street"/>
+    </entity>
+    <entity name="Street" representedClassName=".StreetEntity" syncable="YES">
+        <attribute name="name" attributeType="String"/>
+        <relationship name="city" maxCount="1" deletionRule="Nullify" destinationEntity="City" inverseName="streets" inverseEntity="City"/>
+        <relationship name="homes" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Home" inverseName="street" inverseEntity="Home"/>
+    </entity>
+    <elements>
+        <element name="City" positionX="-36" positionY="36" width="128" height="74"/>
+        <element name="Home" positionX="-63" positionY="-18" width="128" height="89"/>
+        <element name="Street" positionX="-54" positionY="9" width="128" height="74"/>
+    </elements>
+</model>
