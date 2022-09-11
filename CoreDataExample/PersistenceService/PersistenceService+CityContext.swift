@@ -9,17 +9,17 @@ import Foundation
 
 protocol PersistenceServiceCityContext: PersistenceServiceDeletionContext {
     func create(city: CityDTO) async
-    func fetch() async -> [CityEntity]
-    func fetch(url: URL) async -> CityEntity?
+    func fetch() async -> [CityDTO]
+    func fetch(url: URL) async -> CityDTO?
 }
 
 extension PersistenceService: PersistenceServiceCityContext {
     func create(city: CityDTO) async {
         do {
-            try await backgroundContext.perform {
-                let entity = CityEntity(context: backgroundContext)
-                entity.name = city.name
-                entity.region = city.region
+            try await backgroundContext.perform { [weak self] in
+                guard let self = self else { return }
+                
+                CityEntity(city: city, insertInto: self.backgroundContext)
             }
             
             try await saveContextIfNeeded(backgroundContext)
@@ -28,18 +28,21 @@ extension PersistenceService: PersistenceServiceCityContext {
         }
     }
     
-    func fetch() async -> [CityEntity] {
+    func fetch() async -> [CityDTO] {
         do {
-            return try await fetch(on: mainContext)
+            let entities: [CityEntity] = try await fetch(on: mainContext)
+            return entities.compactMap { CityDTO($0) }
         } catch let error {
             assertionFailure("Fetch error of \([CityEntity].self) entity. Error: \(error)")
             return []
         }
     }
     
-    func fetch(url: URL) async -> CityEntity? {
+    func fetch(url: URL) async -> CityDTO? {
         do {
-            return try await fetch(url: url, on: mainContext)
+            guard let entity: CityEntity = try await fetch(url: url, on: mainContext) else { return nil }
+            
+            return CityDTO(entity)
         } catch let error {
             assertionFailure("Fetch error of \(CityEntity.self) entity. Error: \(error)")
             return nil
