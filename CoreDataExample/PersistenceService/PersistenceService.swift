@@ -38,6 +38,8 @@ class PersistenceService {
         persistentContainer = container
         mainContext = persistentContainer.viewContext
         backgroundContext = persistentContainer.newBackgroundContext()
+        mainContext.automaticallyMergesChangesFromParent = true
+        backgroundContext.automaticallyMergesChangesFromParent = true
     }
     
     func getObjectID(from url: URL) -> NSManagedObjectID? {
@@ -59,7 +61,7 @@ extension PersistenceService {
         guard let objectID = getObjectID(from: url) else { throw PersistenceError.general("Not found id from URL: \(url.absoluteString) in context \(context.self)") }
         
         return try await context.perform {
-            return context.object(with: objectID) as? Entity
+            return try context.existingObject(with: objectID) as? Entity
         }
     }
 }
